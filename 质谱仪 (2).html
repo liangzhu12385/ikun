@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杨老师课堂积分系统</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .search-box {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+        
+        .points-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        .add-points {
+            background-color: #2ecc71;
+        }
+        
+        .subtract-points {
+            background-color: #e74c3c;
+        }
+        
+        .reset-points {
+            background-color: #f39c12;
+        }
+        
+        .export-excel {
+            background-color: #27ae60;
+        }
+        
+        .total-points {
+            font-weight: bold;
+        }
+        
+        .positive-points {
+            color: #27ae60;
+        }
+        
+        .negative-points {
+            color: #e74c3c;
+        }
+        
+        .zero-points {
+            color: #7f8c8d;
+        }
+        
+        .rankings-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .ranking-section {
+            flex: 1;
+            padding: 15px;
+            background-color: #eaf7ff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .ranking-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .student-rank {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .rank-1 {
+            background-color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .rank-2 {
+            background-color: #c0c0c0;
+            font-weight: bold;
+        }
+        
+        .rank-3 {
+            background-color: #cd7f32;
+            font-weight: bold;
+        }
+        
+        .top-10 {
+            background-color: #e6f7ff;
+        }
+        
+        .rank-number {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .medal {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        .gold {
+            background-color: gold;
+            border-radius: 50%;
+        }
+        
+        .silver {
+            background-color: silver;
+            border-radius: 50%;
+        }
+        
+        .bronze {
+            background-color: #cd7f32;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>杨老师课堂积分系统</h1>
+        
+        <div class="controls">
+            <div>
+                <input type="text" class="search-box" id="searchBox" placeholder="搜索学生姓名...">
+                <button id="searchBtn">搜索</button>
+                <button id="resetSearchBtn">重置</button>
+            </div>
+            <div>
+                <button id="saveDataBtn">保存数据</button>
+                <button id="loadDataBtn">加载数据</button>
+                <button id="exportExcelBtn" class="export-excel">导出Excel</button>
+                <button id="resetAllBtn">重置所有积分</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="students">学生列表</div>
+            <div class="tab" data-tab="rankings">积分排行榜</div>
+        </div>
+        
+        <div class="tab-content active" id="studentsTab">
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>姓名</th>
+                        <th>当前积分</th>
+                        <th>加分</th>
+                        <th>减分</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- 学生数据将在这里动态生成 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-content" id="rankingsTab">
+            <div class="rankings-container">
+                <div class="ranking-section">
+                    <div class="ranking-title">🏆 前十名排行榜</div>
+                    <div id="top10List">
+                        <!-- 前十名将在这里动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="ranking-section">
+                    <div class="ranking-title">📊 完整排行榜</div>
+                    <div id="fullRankingList" style="max-height: 500px; overflow-y: auto;">
+                        <!-- 完整排行榜将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script>
+        // 学生名单
+        const students = [
+            "陈明正", "陈淙明", "何嘉峰", "盘巧棋", "凌颢元", 
+            "姜卓艺", "郑羽晗", "黄浩天", "叶潇盈", "王雪", 
+            "简丹", "黄婧", "贺昀馨", "陈家欣", "彭嘉璐", 
+            "冯宇凤", "叶浩欣", "卢裕元", "宋建永", "叶子健", 
+            "刘荔明", "肖可欣", "肖瑞仪", "钟家茵", "纪汝佳", 
+            "刘宣彤", "郭楠", "谭婉琪", "郑乐祺", "陈语莎", 
+            "朱胜聪", "黄思怡", "梁镇尧", "吴馥羽", "林正翰", 
+            "陈可妮", "符贵瑜", "张雨", "李想", "杨丽涵", 
+            "胡苏桃", "丁玉莹", "易宇欣", "唐嘉灿", "王天慧", 
+            "孙广皓", "杨佳颖", "孙仙仙", "陈汉瑜", "白成会", 
+            "向玉安", "古力孙·肉孜", "索朗卓玛", "黎嘉明", "梁雅晴", 
+            "王周欣", "吴诗琪", "冯烨琪", "袁浩"
+        ];
+        
+        // 初始化学生积分数据
+        let studentData = {};
+        students.forEach(student => {
+            studentData[student] = 0;
+        });
+        
+        // DOM元素
+        const studentsTableBody = document.getElementById('studentsTableBody');
+        const searchBox = document.getElementById('searchBox');
+        const searchBtn = document.getElementById('searchBtn');
+        const resetSearchBtn = document.getElementById('resetSearchBtn');
+        const saveDataBtn = document.getElementById('saveDataBtn');
+        const loadDataBtn = document.getElementById('loadDataBtn');
+        const exportExcelBtn = document.getElementById('exportExcelBtn');
+        const resetAllBtn = document.getElementById('resetAllBtn');
+        const top10List = document.getElementById('top10List');
+        const fullRankingList = document.getElementById('fullRankingList');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // 获取积分显示类名
+        function getPointsClass(points) {
+            if (points > 0) return 'positive-points';
+            if (points < 0) return 'negative-points';
+            return 'zero-points';
+        }
+        
+        // 渲染学生表格
+        function renderStudentsTable(filter = '') {
+            studentsTableBody.innerHTML = '';
+            let filteredStudents = students;
+            
+            if (filter) {
+                filteredStudents = students.filter(student => 
+                    student.includes(filter)
+                );
+            }
+            
+            filteredStudents.forEach((student, index) => {
+                const row = document.createElement('tr');
+                const pointsClass = getPointsClass(studentData[student]);
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${student}</td>
+                    <td class="total-points ${pointsClass}">${studentData[student]}</td>
+                    <td><input type="number" class="points-input" id="add-${student}" value="1" min="1"></td>
+                    <td><input type="number" class="points-input" id="subtract-${student}" value="1" min="1"></td>
+                    <td>
+                        <button class="add-points" data-student="${student}">加分</button>
+                        <button class="subtract-points" data-student="${student}">减分</button>
+                        <button class="reset-points" data-student="${student}">重置</button>
+                    </td>
+                `;
+                
+                studentsTableBody.appendChild(row);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.add-points').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const student = this.getAttribute('data-student');
+                    const points = parseInt(document.getElementById(`add-${student}`).value) || 1;
+                    studentData[student] += points;
+                    renderStudentsTable(searchBox.value);
+                    updateRankings();
+                });
+            });
+            
+            document.querySelectorAll('.subtract-points').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const student = this.getAttribute('data-student');
+                    const points = parseInt(document.getElementById(`subtract-${student}`).value) || 1;
+                    studentData[student] -= points; // 允许减到负数
+                    renderStudentsTable(searchBox.value);
+                    updateRankings();
+                });
+            });
+            
+            document.querySelectorAll('.reset-points').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const student = this.getAttribute('data-student');
+                    if (confirm(`确定要重置 ${student} 的积分吗？`)) {
+                        studentData[student] = 0;
+                        renderStudentsTable(searchBox.value);
+                        updateRankings();
+                    }
+                });
+            });
+        }
+        
+        // 更新排行榜
+        function updateRankings() {
+            // 按积分排序
+            const sortedStudents = Object.entries(studentData)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // 更新前十名排行榜
+            top10List.innerHTML = '';
+            sortedStudents.slice(0, 10).forEach(([student, points], index) => {
+                const rankItem = document.createElement('div');
+                let medal = '';
+                const pointsClass = getPointsClass(points);
+                
+                if (index === 0) medal = '<span class="medal gold"></span>';
+                else if (index === 1) medal = '<span class="medal silver"></span>';
+                else if (index === 2) medal = '<span class="medal bronze"></span>';
+                
+                rankItem.className = `student-rank ${index < 3 ? 'rank-' + (index + 1) : 'top-10'}`;
+                rankItem.innerHTML = `
+                    <div>
+                        ${medal}
+                        <span class="rank-number">${index + 1}.</span>
+                        <span>${student}</span>
+                    </div>
+                    <span class="${pointsClass}">${points}分</span>
+                `;
+                top10List.appendChild(rankItem);
+            });
+            
+            // 更新完整排行榜
+            fullRankingList.innerHTML = '';
+            sortedStudents.forEach(([student, points], index) => {
+                const rankItem = document.createElement('div');
+                let medal = '';
+                const pointsClass = getPointsClass(points);
+                
+                if (index === 0) medal = '<span class="medal gold"></span>';
+                else if (index === 1) medal = '<span class="medal silver"></span>';
+                else if (index === 2) medal = '<span class="medal bronze"></span>';
+                
+                rankItem.className = `student-rank ${index < 3 ? 'rank-' + (index + 1) : ''}`;
+                rankItem.innerHTML = `
+                    <div>
+                        ${medal}
+                        <span class="rank-number">${index + 1}.</span>
+                        <span>${student}</span>
+                    </div>
+                    <span class="${pointsClass}">${points}分</span>
+                `;
+                fullRankingList.appendChild(rankItem);
+            });
+        }
+        
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('classPointsData', JSON.stringify(studentData));
+            alert('积分数据已保存！');
+        }
+        
+        // 从本地存储加载数据
+        function loadData() {
+            const savedData = localStorage.getItem('classPointsData');
+            if (savedData) {
+                studentData = JSON.parse(savedData);
+                renderStudentsTable();
+                updateRankings();
+                alert('积分数据已加载！');
+            } else {
+                alert('没有找到保存的数据！');
+            }
+        }
+        
+        // 导出Excel文件
+        function exportToExcel() {
+            // 准备数据
+            const data = [
+                ["序号", "姓名", "积分"], // 表头
+                ...Object.entries(studentData)
+                    .sort((a, b) => b[1] - a[1]) // 按积分排序
+                    .map(([name, points], index) => [index + 1, name, points]) // 转换为表格行
+            ];
+            
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // 设置列宽
+            ws['!cols'] = [
+                { wch: 8 },  // 序号列宽
+                { wch: 20 }, // 姓名列宽
+                { wch: 10 }  // 积分列宽
+            ];
+            
+            // 添加工作表到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, "课堂积分");
+            
+            // 生成Excel文件并下载
+            const date = new Date();
+            const fileName = `杨老师课堂积分_${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+        
+        // 重置所有积分
+        function resetAllPoints() {
+            if (confirm('确定要重置所有学生的积分吗？此操作不可撤销！')) {
+                students.forEach(student => {
+                    studentData[student] = 0;
+                });
+                renderStudentsTable();
+                updateRankings();
+            }
+        }
+        
+        // 标签页切换
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // 更新活动标签
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // 更新活动内容
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId + 'Tab') {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // 事件监听
+        searchBtn.addEventListener('click', () => {
+            renderStudentsTable(searchBox.value);
+        });
+        
+        resetSearchBtn.addEventListener('click', () => {
+            searchBox.value = '';
+            renderStudentsTable();
+        });
+        
+        saveDataBtn.addEventListener('click', saveData);
+        loadDataBtn.addEventListener('click', loadData);
+        exportExcelBtn.addEventListener('click', exportToExcel);
+        resetAllBtn.addEventListener('click', resetAllPoints);
+        
+        // 初始渲染
+        renderStudentsTable();
+        updateRankings();
+    </script>
+</body>
+</html>
